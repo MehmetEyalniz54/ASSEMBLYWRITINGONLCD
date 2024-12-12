@@ -1,0 +1,98 @@
+#include <aduc841.h>
+
+LRS EQU P2.5
+LEE EQU P2.6
+LCD EQU P0
+RW  EQU P2.7
+
+ORG 00H
+sjmp BASLA
+
+BASLA:
+    clr RW
+    mov r0, #07FH
+temiz:  
+    mov @r0, #00H
+    djnz r0, temiz
+    
+    lcall lcd_ayar
+    mov dptr, #Data1
+
+    clr LRS
+    mov a, #83H
+    lcall yaz
+    setb LRS
+    mov r0, #00H
+str1:   
+    mov a, r0
+    mov a, @a+dptr
+    cjne a, #0', go1
+    sjmp str2
+go1:    
+    lcall yaz
+    inc r0
+    sjmp str1
+
+str2:   
+    clr LRS
+    mov a, #0C1H
+    lcall yaz
+    setb LRS
+    mov dptr, #Data2
+go:     
+    mov a, r0
+    mov a, @a+dptr
+    cjne a, #0', go2
+    sjmp dur
+go2:    
+    lcall yaz
+    inc r0
+    sjmp go
+DUR:    
+    SJMP DUR
+
+lcd_ayar:
+    clr LEE
+    clr LRS
+    lcall gecik
+    lcall gecik
+    lcall gecik
+    mov a, #30H
+    lcall yaz
+    lcall gecik
+    mov a, #30H
+    lcall yaz
+    lcall gecik
+    mov a, #30H
+    lcall yaz
+    mov a, #3CH
+    lcall yaz
+    mov a, #0FH
+    lcall yaz
+    mov a, #01H
+    lcall yaz
+    mov a, #06H
+    lcall yaz
+    ret
+
+yaz:
+    setb LEE
+    lcall gecik
+    mov LCD, a
+    clr LEE
+    ret
+
+gecik:
+    mov r3, #4fh
+w2: 
+    mov r4, #0ffh
+w1: 
+    djnz r4, w1
+    djnz r3, w2
+    ret
+
+Data1:  
+    DB 'MIKRO LAB.0'
+Data2:  
+    DB 'SAU EEM BOLUMU0'
+end
